@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+  :root{
+    --mint: #CFF3DE;
+    --mint-deep: #9FE0BE;
+    --pink: #F8CBD9;
+    --pink-deep: #F3A6BE;
+    --hot: #EA5C88;
+    --ink-green: #1F4B3A;
+    --ink-maroon: #7A2942;
+    --cream: #FFFBF6;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  body{
+    background:var(--mint);
+    font-family:'VT323', monospace;
+    color:var(--ink-green);
+    overflow-x:hidden;
+    image-rendering:pixelated;
+  }
+
+  .pixel-font{
+    font-family:'Press Start 2P', monospace;
+  }
+
+  .screen{
+    min-height:100vh;
+    width:100%;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:8vh 6vw;
+    position:relative;
+  }
+  .screen.active{
+    display:flex;
+    animation:fadeIn 0.6s ease;
+  }
+  @keyframes fadeIn{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  /* ---- buttons ---- */
+  .btn{
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    color:var(--hot);
+    background:var(--cream);
+    border:3px solid var(--hot);
+    border-radius:999px;
+    padding:14px 30px;
+    cursor:pointer;
+    box-shadow:3px 3px 0 rgba(0,0,0,0.08);
+    transition:transform 0.15s ease;
+  }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn:active{ transform:translateY(1px); }
+
+  .back-btn{
+    position:absolute;
+    top:24px; right:24px;
+    font-size:9px;
+    padding:10px 18px;
+  }
+
+  /* ---- svg icon wrapper ---- */
+  .icon{ margin-bottom:36px; }
+  .icon svg{ display:block; }
+
+  .twinkle{
+    animation:twinkle 1.8s ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{ opacity:0.25; }
+    50%{ opacity:1; }
+  }
+
+  .float{
+    animation:floaty 3.2s ease-in-out infinite;
+  }
+  @keyframes floaty{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-10px); }
+  }
+
+  /* ---- text ---- */
+  .msg{
+    font-size:20px;
+    line-height:1.6;
+    max-width:34ch;
+    color:var(--ink-green);
+    margin-bottom:36px;
+  }
+
+  .headline{
+    font-family:'Press Start 2P', monospace;
+    font-size:clamp(14px, 3vw, 20px);
+    line-height:2.1;
+    color:var(--ink-green);
+    max-width:16ch;
+    margin-bottom:40px;
+  }
+
+  /* ---- choice screen ---- */
+  .choice-row{
+    display:flex;
+    gap:28px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-top:8px;
+  }
+  .choice-card{
+    background:var(--cream);
+    border:3px solid var(--pink-deep);
+    border-radius:20px;
+    padding:32px 28px;
+    width:220px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    box-shadow:4px 4px 0 rgba(0,0,0,0.06);
+  }
+  .choice-card p{
+    font-size:18px;
+    color:var(--ink-maroon);
+    margin-bottom:20px;
+  }
+
+  /* ---- letter screen ---- */
+  #letter-screen{ background:var(--pink); }
+  .letter-card{
+    background:var(--cream);
+    border:3px solid var(--hot);
+    border-radius:16px;
+    max-width:480px;
+    width:100%;
+    padding:44px 38px;
+    text-align:left;
+    box-shadow:5px 5px 0 rgba(0,0,0,0.07);
+  }
+  .letter-card p{
+    font-size:20px;
+    line-height:1.65;
+    color:var(--ink-maroon);
+    margin-bottom:16px;
+  }
+  .letter-sign{
+    text-align:right;
+    font-size:20px;
+    color:var(--hot);
+    margin-top:12px;
+  }
+  .letter-note{
+    font-family:'Press Start 2P', monospace;
+    font-size:8px;
+    color:rgba(122,41,66,0.5);
+    margin-top:26px;
+    line-height:1.8;
+    text-align:left;
+  }
+
+  /* ---- video screen ---- */
+  #video-screen{ background:var(--mint); }
+  .heart-row{ display:flex; gap:10px; margin-bottom:28px; }
+
+  .video-frame{
+    width:100%;
+    max-width:520px;
+    aspect-ratio:16/9;
+    background:var(--cream);
+    border:3px solid var(--hot);
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    box-shadow:5px 5px 0 rgba(0,0,0,0.07);
+  }
+  .video-frame video{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .video-placeholder{
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    color:var(--ink-maroon);
+    padding:0 30px;
+  }
+  .video-placeholder p{
+    font-family:'Press Start 2P', monospace;
+    font-size:8px;
+    line-height:1.9;
+    max-width:30ch;
+  }
+
+  .video-caption{
+    margin-top:30px;
+    font-size:20px;
+    color:var(--ink-green);
+    max-width:32ch;
+  }
+
+  @media (max-width:480px){
+    .choice-row{ flex-direction:column; align-items:center; }
+    .letter-card{ padding:30px 24px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- SCREEN 1: START -->
+  <div class="screen active" id="start-screen">
+    <div class="icon float">
+      <svg width="120" height="120" viewBox="0 0 32 32" shape-rendering="crispEdges">
+        <circle cx="16" cy="16" r="9" fill="#F3A6BE"/>
+        <circle cx="13" cy="13" r="2.6" fill="#FFE1EC"/>
+        <ellipse cx="16" cy="17" rx="14" ry="3.2" fill="none" stroke="#EA5C88" stroke-width="1.6" transform="rotate(-18 16 17)"/>
+        <g transform="translate(12.5,12.5) scale(0.9)">
+          <rect x="2" y="0" width="1" height="1" fill="#7A2942"/>
+          <rect x="5" y="0" width="1" height="1" fill="#7A2942"/>
+          <rect x="1" y="1" width="6" height="1" fill="#7A2942"/>
+          <rect x="0" y="2" width="8" height="2" fill="#7A2942"/>
+          <rect x="1" y="4" width="6" height="1" fill="#7A2942"/>
+          <rect x="2" y="5" width="4" height="1" fill="#7A2942"/>
+          <rect x="3" y="6" width="2" height="1" fill="#7A2942"/>
+        </g>
+      </svg>
+    </div>
+    <p class="msg">Happy birthday to u. So I made this.<br>Just to remind u that u mean the world to me &lt;3</p>
+    <button class="btn" onclick="goTo('mailbox-screen')">Start</button>
+  </div>
+
+  <!-- SCREEN 2: MAILBOX -->
+  <div class="screen" id="mailbox-screen">
+    <div class="icon float">
+      <svg width="110" height="110" viewBox="0 0 32 32" shape-rendering="crispEdges">
+        <rect x="14" y="18" width="4" height="12" fill="#7A2942"/>
+        <rect x="8" y="9" width="16" height="10" rx="5" fill="#EA5C88"/>
+        <rect x="8" y="14" width="16" height="5" fill="#F3A6BE"/>
+        <rect x="20" y="7" width="2" height="6" fill="#7A2942"/>
+        <rect x="20" y="6" width="6" height="2" fill="#EA5C88" class="twinkle"/>
+      </svg>
+    </div>
+    <p class="msg">Oh! Looks like a birthday delivery just arrived!</p>
+    <button class="btn" onclick="goTo('choice-screen')">Open</button>
+  </div>
+
+  <!-- SCREEN 3: CHOICE -->
+  <div class="screen" id="choice-screen">
+    <p class="headline">your gifts<br>pick one<br>(or both)</p>
+    <div class="choice-row">
+      <div class="choice-card">
+        <svg width="70" height="70" viewBox="0 0 32 32" shape-rendering="crispEdges" style="margin-bottom:18px;">
+          <rect x="4" y="9" width="24" height="17" rx="2" fill="#FFE1EC" stroke="#EA5C88" stroke-width="1.5"/>
+          <path d="M4 10 L16 20 L28 10" fill="none" stroke="#EA5C88" stroke-width="1.6"/>
+          <g transform="translate(13,12) scale(0.55)">
+            <rect x="2" y="0" width="1" height="1" fill="#EA5C88"/>
+            <rect x="5" y="0" width="1" height="1" fill="#EA5C88"/>
+            <rect x="1" y="1" width="6" height="1" fill="#EA5C88"/>
+            <rect x="0" y="2" width="8" height="2" fill="#EA5C88"/>
+            <rect x="1" y="4" width="6" height="1" fill="#EA5C88"/>
+            <rect x="2" y="5" width="4" height="1" fill="#EA5C88"/>
+            <rect x="3" y="6" width="2" height="1" fill="#EA5C88"/>
+          </g>
+        </svg>
+        <p>Read a letter</p>
+        <button class="btn" onclick="goTo('letter-screen')">Open</button>
+      </div>
+      <div class="choice-card">
+        <svg width="70" height="70" viewBox="0 0 32 32" shape-rendering="crispEdges" style="margin-bottom:18px;">
+          <polygon points="16,4 24,12 16,28 8,12" fill="#F3A6BE"/>
+          <polygon points="16,4 24,12 16,16" fill="#FFE1EC"/>
+          <polygon points="8,12 16,16 16,4" fill="#EA5C88"/>
+          <rect x="18" y="6" width="1.4" height="1.4" fill="#FFFBF6" class="twinkle"/>
+          <rect x="23" y="16" width="1.4" height="1.4" fill="#FFFBF6" class="twinkle"/>
+        </svg>
+        <p>Watch a video</p>
+        <button class="btn" onclick="goTo('video-screen')">Open</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: LETTER -->
+  <div class="screen" id="letter-screen">
+    <button class="btn back-btn" onclick="goTo('choice-screen')">Back</button>
+    <div class="letter-card">
+      <p>Happy Birthday Chanduuuuuu ❤️</p>
+      <p>Nuvvu aduguthav kadha… "Enduku neku naa birthday antha special?" ani. Cheptha vinu… ❤️</p>
+      <p>Ee world lo chala mandi untaru, chala birthdays vastayi, pothayi. Kaani nuvvu puttina roju matram naaku ordinary day kaadu. Endukante ee roju… nenu chala istapade oka beautiful person ee world loki vachina roju. ❤️</p>
+      <p>Nuvvu naaku entha important oo, maybe nenu prathi sari correct ga cheppalekapovachu. Kaani naa heart ki matram telusu. Nee smile chusthe naaku happiness vastundi. Nee voice vintene na day konchem better aipothundi. Nee tho matladina small small moments kuda naaku chala special.</p>
+      <p>Anduke nee birthday kosam wish cheyyadam ante just "Happy Birthday" ani cheppadam kaadu… Nuvvu naa life lo unnanduku, nee existence ni celebrate chesukune oka small reason. ❤️</p>
+      <p>Oka chinna poem kuda nee kosam…<br>
+      Andaru puttina rojulu calendar lo oka date,<br>
+      Kaani nee puttina roju naa heart lo oka guruthu…</p>
+      <p>Chinna pilla… Nuvvu eppudu happy ga undali. Nee smile eppudu ilane undali. Nuvvu korukunna prati dream nijam avvali.</p>
+      <p>And today, more than anything, I just want you to know that you are loved, you are special, and you mean more to me than I can ever properly put into words. ❤️</p>
+      <p>Happy Birthday, Chinna Pilla. Keep smiling… because your smile is one of my favourite things in this world. ❤️</p>
+      <p class="letter-sign">— [Harsha] ♡</p>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: VIDEO -->
+  <div class="screen" id="video-screen">
+    <button class="btn back-btn" onclick="goTo('choice-screen')">Back</button>
+    <div class="heart-row">
+      <svg width="22" height="22" viewBox="0 0 8 8" shape-rendering="crispEdges" class="twinkle" style="animation-delay:0s;">
+        <g fill="#EA5C88">
+          <rect x="2" y="0" width="1" height="1"/><rect x="5" y="0" width="1" height="1"/>
+          <rect x="1" y="1" width="6" height="1"/><rect x="0" y="2" width="8" height="2"/>
+          <rect x="1" y="4" width="6" height="1"/><rect x="2" y="5" width="4" height="1"/><rect x="3" y="6" width="2" height="1"/>
+        </g>
+      </svg>
+      <svg width="26" height="26" viewBox="0 0 8 8" shape-rendering="crispEdges" class="twinkle" style="animation-delay:0.3s;">
+        <g fill="#F3A6BE">
+          <rect x="2" y="0" width="1" height="1"/><rect x="5" y="0" width="1" height="1"/>
+          <rect x="1" y="1" width="6" height="1"/><rect x="0" y="2" width="8" height="2"/>
+          <rect x="1" y="4" width="6" height="1"/><rect x="2" y="5" width="4" height="1"/><rect x="3" y="6" width="2" height="1"/>
+        </g>
+      </svg>
+      <svg width="22" height="22" viewBox="0 0 8 8" shape-rendering="crispEdges" class="twinkle" style="animation-delay:0.6s;">
+        <g fill="#EA5C88">
+          <rect x="2" y="0" width="1" height="1"/><rect x="5" y="0" width="1" height="1"/>
+          <rect x="1" y="1" width="6" height="1"/><rect x="0" y="2" width="8" height="2"/>
+          <rect x="1" y="4" width="6" height="1"/><rect x="2" y="5" width="4" height="1"/><rect x="3" y="6" width="2" height="1"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="video-frame">
+      <!--
+        HOW TO ADD YOUR VIDEO:
+        Replace the <div class="video-placeholder">...</div> below with:
+          <video controls poster="your-poster.jpg">
+            <source src="your-video.mp4" type="video/mp4">
+          </video>
+        Put your-video.mp4 in the same folder as this HTML file.
+      -->
+      <div class="video-placeholder">
+        <p>your video goes here — record it, then follow the note in the code to drop it in</p>
+      </div>
+    </div>
+    <p class="video-caption">Here's every crazy thing I did this year, just to make today happen &lt;3</p>
+  </div>
+
+<script>
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'instant'});
+}
+</script>
+
+</body>
+</html>
